@@ -1,6 +1,6 @@
 var Story = require('models/story');
 var StoryCollection = require('collections/story_collection');
-
+require('jasmine-ajax');
 describe('StoryCollection', function() {
 
   beforeEach(function() {
@@ -126,6 +126,27 @@ describe('StoryCollection', function() {
         .toEqual([this.story3,this.story2,this.story1]);
     });
 
+  });
+
+  describe("story sorting", function() {
+    jasmine.Ajax.install();
+
+    describe("when the new position is conflicting with the position of near stories", function() {
+      it("should make a request sort the whole column", function() {
+        this.story3.moveAfter(1);
+        let request = jasmine.Ajax.requests.mostRecent();
+        expect(request.url).toBe('/foo/sort');
+        expect(request.method).toBe('PUT');
+      });
+    });
+
+    describe("when the new position is valid", function() {
+      it("should not make any requests", function() {
+        this.story3.moveAfter(1);
+        let request = jasmine.Ajax.requests.mostRecent();
+        expect(request.url).notToBe('/foo/sort');
+      });
+    });
   });
 
   describe("labels", function() {
